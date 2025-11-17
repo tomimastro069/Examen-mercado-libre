@@ -1,11 +1,12 @@
-package mutants.service;
+package org.example.controller;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.example.Controller.MutantController;
 import org.example.Service.MutantService;
 import org.example.Service.StatsService;
 import org.example.dto.DnaRequest;
+import org.example.dto.StatsResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,8 +18,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MutantController.class)
 class MutantControllerTest {
@@ -47,6 +48,7 @@ class MutantControllerTest {
         };
 
         DnaRequest request = new DnaRequest(dna);
+
         when(mutantService.analyzeDna(any())).thenReturn(true);
 
         mockMvc.perform(post("/mutant")
@@ -67,6 +69,7 @@ class MutantControllerTest {
         };
 
         DnaRequest request = new DnaRequest(dna);
+
         when(mutantService.analyzeDna(any())).thenReturn(false);
 
         mockMvc.perform(post("/mutant")
@@ -80,7 +83,9 @@ class MutantControllerTest {
         String[] dna = {"INVALID"};
 
         DnaRequest request = new DnaRequest(dna);
-        when(mutantService.analyzeDna(any())).thenThrow(new IllegalArgumentException());
+
+        when(mutantService.analyzeDna(any()))
+                .thenThrow(new IllegalArgumentException("ADN inválido"));
 
         mockMvc.perform(post("/mutant")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -90,10 +95,14 @@ class MutantControllerTest {
 
     @Test
     void testGetStats_ReturnsCorrectStats() throws Exception {
+
+        StatsResponse stats = new StatsResponse(40, 100, 0.4);
+        when(statsService.getStats()).thenReturn(stats);
+
         mockMvc.perform(get("/stats"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.count_mutant_dna").exists())
-                .andExpect(jsonPath("$.count_human_dna").exists())
-                .andExpect(jsonPath("$.ratio").exists());
+                .andExpect(jsonPath("$['cantidad de humanos']").value(100))
+                .andExpect(jsonPath("$['cantidad de mutantes:']").value(40))
+                .andExpect(jsonPath("$.ratio").value(0.4));
     }
 }

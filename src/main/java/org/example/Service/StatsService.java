@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class StatsService {
 
     @Autowired
-    private DnaRecordRepository dnaRecordRepository;
+    public DnaRecordRepository dnaRecordRepository;
 
     public StatsResponse getStats() {
         long mutantCount = dnaRecordRepository.countMutants();

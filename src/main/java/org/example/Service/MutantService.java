@@ -1,6 +1,7 @@
 package org.example.Service;
 
 
+import lombok.Data;
 import org.example.Entity.DnaRecord;
 import org.example.Repository.DnaRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Optional;
-
 @Service
 public class MutantService {
 
@@ -20,6 +20,11 @@ public class MutantService {
 
     @Autowired
     private DnaRecordRepository dnaRecordRepository;
+
+    public MutantService(MutantDetector mutantDetector, DnaRecordRepository dnaRecordRepository) {
+        this.mutantDetector = mutantDetector;
+        this.dnaRecordRepository = dnaRecordRepository;
+    }
 
     @Transactional
     public boolean analyzeDna(String[] dna) {
